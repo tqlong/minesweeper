@@ -84,16 +84,16 @@ bool Game::initMessages()
         stringstream ss;
         ss << k;
         SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, ss.str().c_str(), Color[k]);
-        Message[k] = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+        numberMessage[k] = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
         SDL_FreeSurface(surfaceMessage);
     }
     SDL_Surface* surfaceMessage;
-    WonOrLostMessage[0] = NULL;
+    wonOrLostMessage[0] = NULL;
     surfaceMessage = TTF_RenderText_Solid(Sans, "You lost", { 255, 0, 0 });
-    WonOrLostMessage[1] = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+    wonOrLostMessage[1] = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
     SDL_FreeSurface(surfaceMessage);
     surfaceMessage = TTF_RenderText_Solid(Sans, "You win", { 20, 255, 0 });
-    WonOrLostMessage[2] = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+    wonOrLostMessage[2] = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
     SDL_FreeSurface(surfaceMessage);
     TTF_CloseFont( Sans );
     return true;
@@ -114,9 +114,10 @@ bool Game::initMineImage()
     }
     SDL_SetColorKey( loadedSurface, SDL_TRUE, SDL_MapRGB( loadedSurface->format, 0, 0xFF, 0xFF ) );
     //Create texture from surface pixels
-    Mine = SDL_CreateTextureFromSurface( renderer, loadedSurface );
-    if( Mine == NULL ) {
+    mineMessage = SDL_CreateTextureFromSurface( renderer, loadedSurface );
+    if( mineMessage == NULL ) {
         printf( "Unable to create texture from %s! SDL Error: %s\n", "minesweeper.png", SDL_GetError() );
+        return false;
     }
     SDL_FreeSurface(loadedSurface);
 
@@ -135,15 +136,17 @@ bool Game::initGraphics()
 
 void Game::releaseGraphics()
 {
-    ifor(i, 9) SDL_DestroyTexture(Message[i]);
-    ifor(i, 3) SDL_DestroyTexture(WonOrLostMessage[i]);
-    SDL_DestroyTexture(Mine);
+    ifor(i, 9) SDL_DestroyTexture(numberMessage[i]);
+    ifor(i, 3) SDL_DestroyTexture(wonOrLostMessage[i]);
+    SDL_DestroyTexture(mineMessage);
     //Destroy window
     SDL_FreeSurface(screenSurface);
     SDL_DestroyRenderer( renderer );
     SDL_DestroyWindow( window );
 
     //Quit SDL subsystems
+    IMG_Quit();
+    TTF_Quit();
     SDL_Quit();
 }
 
@@ -220,13 +223,12 @@ void Game::clickOn(int i, int j)
 
 bool Game::isAllOpen() const
 {
-    int nrow = mine.size(), ncol = mine[0].size();
     ijfor(i, j, nrow, ncol)
         if (mine[i][j] == 0 && isOpen[i][j] == 0) return false;
     return true;
 }
 
-Game::UserInput Game::getUserInput()
+Game::UserInput Game::getUserInput() const
 {
     SDL_Event e;
     UserInput input;
@@ -288,17 +290,17 @@ void Game::renderGameGraphics(int wonOrLost) const
             SDL_RenderFillRect( renderer, &fillRect );
             if (mine[i][j] == 0) {
                 if (count[i][j] > 0) {
-                    renderCenteredTexture(renderer, j*CELL_WIDTH, i*CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT, Message[count[i][j]]);
+                    renderCenteredTexture(renderer, j*CELL_WIDTH, i*CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT, numberMessage[count[i][j]]);
                 }
             }
         }
         if (wonOrLost > 0 && mine[i][j] > 0) {
-            renderCenteredTexture(renderer, j*CELL_WIDTH, i*CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT, Mine);
+            renderCenteredTexture(renderer, j*CELL_WIDTH, i*CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT, mineMessage);
         }
     }
 
     if (wonOrLost > 0) {
-        renderCenteredTexture(renderer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WonOrLostMessage[wonOrLost]);
+        renderCenteredTexture(renderer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, wonOrLostMessage[wonOrLost]);
     }
 
     SDL_RenderPresent( renderer );

@@ -1,21 +1,13 @@
 #include <iostream>
-#include <sstream>
-#include <vector>
-#include <cstdlib>
-#include <iomanip>
 
 #include "game.h"
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_image.h>
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
     typedef Game::UserInput UserInput;
-    Game g(4, 6);
+    Game g(10, 6);
     if (!g.initGraphics()) return 1;
     bool stop = false;
     int wonOrLost = 0;

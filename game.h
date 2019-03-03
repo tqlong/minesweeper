@@ -23,7 +23,7 @@ public:
     void printMine() const;
     void renderGame() const;
     void renderGameGraphics(int wonOrLost) const;
-    UserInput getUserInput();
+    UserInput getUserInput() const;
     void clickOn(int i, int j);
     bool isAllOpen() const;
     bool isMine(int i, int j) const;
@@ -41,11 +41,11 @@ protected:
     //The window renderer
     SDL_Renderer* renderer = NULL;
     //The messages
-    SDL_Texture* Message[9];
+    SDL_Texture* numberMessage[9];
     //The messages
-    SDL_Texture* WonOrLostMessage[3];
+    SDL_Texture* wonOrLostMessage[3];
     //Mine
-    SDL_Texture* Mine;
+    SDL_Texture* mineMessage;
 
     typedef std::vector<std::vector<int> > Table;
     Table mine, count, isOpen;
