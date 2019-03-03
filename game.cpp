@@ -20,7 +20,7 @@ Game::Game(int nrow_, int ncol_)
       isOpen(nrow, vector<int>(ncol, 0))
 {
     CELL_WIDTH = 40;
-    CELL_HEIGHT = 40;
+    CELL_HEIGHT = 50;
     SCREEN_WIDTH = ncol*CELL_WIDTH+1;
     SCREEN_HEIGHT = nrow*CELL_HEIGHT+1;
     generateMine();
@@ -268,31 +268,43 @@ void renderCenteredTexture(SDL_Renderer* renderer, int tx, int ty, int tw, int t
     SDL_RenderCopy(renderer, texture, NULL, &rect);
 }
 
+void drawVerticalLine(SDL_Renderer* renderer, int x, int y1, int y2, SDL_Color color)
+{
+    SDL_SetRenderDrawColor( renderer, color.r, color.g, color.b, color.a );
+    SDL_RenderDrawLine( renderer, x, y1, x, y2 );
+}
+
+void drawHorizontalLine(SDL_Renderer* renderer, int x1, int x2, int y, SDL_Color color)
+{
+    SDL_SetRenderDrawColor( renderer, color.r, color.g, color.b, color.a );
+    SDL_RenderDrawLine( renderer, x1, y, x2, y );
+}
+
+void clearRect(SDL_Renderer* renderer, int x, int y, int w, int h, SDL_Color color)
+{
+    SDL_Rect fillRect = { x, y, w, h };
+    SDL_SetRenderDrawColor( renderer, color.r, color.g, color.b, color.a );
+    SDL_RenderFillRect( renderer, &fillRect );
+}
+
+void clearRender(SDL_Renderer* renderer, SDL_Color color)
+{
+    SDL_SetRenderDrawColor( renderer, color.r, color.g, color.b, color.a );
+    SDL_RenderClear( renderer );
+}
+
 void Game::renderGameGraphics(int wonOrLost) const
 {
-    SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0xFF );
-    SDL_RenderClear( renderer );
+    clearRender( renderer, {0xFF, 0xFF, 0xFF, 0xFF} );
 
-    ifor(i, nrow+1) {
-        SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0xFF, 0xFF );
-        SDL_RenderDrawLine( renderer, 0, i*CELL_HEIGHT, ncol*CELL_WIDTH, i*CELL_HEIGHT );
-    }
-
-    ifor(j, ncol+1) {
-        SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0xFF, 0xFF );
-        SDL_RenderDrawLine( renderer, j*CELL_WIDTH, 0, j*CELL_WIDTH, nrow*CELL_HEIGHT );
-    }
+    ifor(i, nrow+1) drawHorizontalLine(renderer, 0, ncol*CELL_WIDTH, i*CELL_HEIGHT, {0x00, 0x00, 0xFF, 0xFF} );
+    ifor(j, ncol+1) drawVerticalLine(renderer, j*CELL_WIDTH, 0, nrow*CELL_HEIGHT, {0x00, 0x00, 0xFF, 0xFF});
 
     ijfor(i, j, nrow, ncol) {
         if (isOpen[i][j] > 0) {
-            SDL_Rect fillRect = { j*CELL_WIDTH+1, i*CELL_HEIGHT+1, CELL_WIDTH-1, CELL_HEIGHT-1 };
-            SDL_SetRenderDrawColor( renderer, 0xA0, 0xA0, 0xA0, 0xFF );
-            SDL_RenderFillRect( renderer, &fillRect );
-            if (mine[i][j] == 0) {
-                if (count[i][j] > 0) {
-                    renderCenteredTexture(renderer, j*CELL_WIDTH, i*CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT, numberMessage[count[i][j]]);
-                }
-            }
+            clearRect(renderer, j*CELL_WIDTH+1, i*CELL_HEIGHT+1, CELL_WIDTH-1, CELL_HEIGHT-1, {0xA0, 0xA0, 0xA0, 0xFF});
+            if (mine[i][j] == 0 && count[i][j] > 0)
+                renderCenteredTexture(renderer, j*CELL_WIDTH, i*CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT, numberMessage[count[i][j]]);
         }
         if (wonOrLost > 0 && mine[i][j] > 0) {
             renderCenteredTexture(renderer, j*CELL_WIDTH, i*CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT, mineMessage);
