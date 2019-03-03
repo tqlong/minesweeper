@@ -1,13 +1,15 @@
-#include <iostream>
+#include "gamesfml.h"
 
-#include "game.h"
+#include <iostream>
 
 using namespace std;
 
+typedef GameSFML GameClass;
+
 int main(int argc, char** argv)
 {
-    typedef Game::UserInput UserInput;
-    Game g(10, 6);
+    typedef GameClass::UserInput UserInput;
+    GameClass g(10, 6);
     if (!g.initGraphics()) return 1;
     bool stop = false;
     int wonOrLost = 0;
@@ -35,5 +37,6 @@ int main(int argc, char** argv)
         }
     } while ( !stop );
     g.releaseGraphics();
+
     return 0;
 }

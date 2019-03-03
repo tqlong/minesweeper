@@ -71,7 +71,7 @@ bool Game::initMessages()
         return false;
     }
 
-    TTF_Font* Sans = TTF_OpenFont("arial.ttf", 24);
+    TTF_Font* Sans = TTF_OpenFont("arial.ttf", 64);
     if (Sans == NULL) {
         printf( "Font could not be loaded: %s\n", TTF_GetError() );
         return false;
@@ -176,8 +176,6 @@ void Game::printMine() const
 
 void Game::countMine()
 {
-    count = vector<vector<int> >(nrow, vector<int>(ncol, 0));
-
     ijfor(i, j, nrow, ncol) {
         ifor(k, 8)
             if ( inside(i + di[k], j + dj[k], nrow, ncol) )

@@ -50,7 +50,7 @@ protected:
     typedef std::vector<std::vector<int> > Table;
     Table mine, count, isOpen;
 
-private:
+protected:
     void generateMine();
     void countMine();
     bool initSDL();
